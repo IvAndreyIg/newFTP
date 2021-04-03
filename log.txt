@@ -1,0 +1,63 @@
+Status:	Resolving address of localhost
+Status:	Connecting to [::1]:5217...
+Status:	Connection established, waiting for welcome message...
+Trace:	CFtpControlSocket::OnReceive()
+Response:	Welcome! 
+Trace:	CControlSocket::DoClose(0)
+Trace:	CFtpControlSocket::ResetOperation(66)
+Trace:	CControlSocket::ResetOperation(66)
+Error:	Could not connect to server
+Trace:	CFileZillaEnginePrivate::ResetOperation(66)
+Status:	Waiting to retry...
+Trace:	CControlSocket::DoClose(64)
+Trace:	CControlSocket::DoClose(64)
+Status:	Resolving address of localhost
+Status:	Connecting to [::1]:5217...
+Status:	Connection established, waiting for welcome message...
+Trace:	CFtpControlSocket::OnReceive()
+Response:	Welcome! 
+Trace:	CControlSocket::DoClose(0)
+Trace:	CFtpControlSocket::ResetOperation(66)
+Trace:	CControlSocket::ResetOperation(66)
+Error:	Could not connect to server
+Trace:	CFileZillaEnginePrivate::ResetOperation(66)
+
+
+
+Status:	Resolving address of ava.timeweb.ru
+Status:	Connecting to 92.53.96.105:21...
+Status:	Connection established, waiting for welcome message...
+Trace:	CFtpControlSocket::OnReceive()
+Response:	220 ProFTPD Server
+Trace:	CFtpControlSocket::SendNextCommand()
+Command:	USER ca64155
+Trace:	CFtpControlSocket::OnReceive()
+Response:	331 Please specify the password.
+Trace:	CFtpControlSocket::SendNextCommand()
+Command:	PASS ********
+Trace:	CFtpControlSocket::OnReceive()
+Response:	230 Login successful.
+Trace:	CFtpControlSocket::SendNextCommand()
+Command:	OPTS UTF8 ON
+Trace:	CFtpControlSocket::OnReceive()
+Response:	200 Always in UTF8 mode.
+Status:	Connected
+Trace:	CFtpControlSocket::ResetOperation(0)
+Trace:	CControlSocket::ResetOperation(0)
+Trace:	CFileZillaEnginePrivate::ResetOperation(0)
+Trace:	Measured latency of 65 ms
+Status:	Retrieving directory listing...
+Trace:	CFtpControlSocket::SendNextCommand()
+Trace:	CFtpControlSocket::ChangeDirSend()
+Command:	PWD
+Trace:	CFtpControlSocket::OnReceive()
+Response:	257 "/"
+Trace:	CFtpControlSocket::ResetOperation(0)
+Trace:	CControlSocket::ResetOperation(0)
+Trace:	CFtpControlSocket::ParseSubcommandResult(0)
+Trace:	CFtpControlSocket::ListSubcommandResult()
+Trace:	  state = 1
+Trace:	CFtpControlSocket::ResetOperation(0)
+Trace:	CControlSocket::ResetOperation(0)
+Status:	Directory listing successful
+Trace:	CFileZillaEnginePrivate::ResetOperation(0)

@@ -10,14 +10,19 @@ import java.util.Scanner;
 public class Client implements Runnable {
 
     static int port = 5217;
+    static int transferPort = 5217;
 
-    Socket socket;
+    Socket mainSocket;
+
+    Socket transferSocket;
 
     DataInputStream din;
     DataOutputStream dout;
 
+    String Filename;
+
     public Client(Socket socket) {
-        this.socket = socket;
+        this.mainSocket = socket;
 
         try {
             din=new DataInputStream(socket.getInputStream());
@@ -70,7 +75,17 @@ public class Client implements Runnable {
             try {
                 String Command=din.readLine();
                 System.out.println("Command:"+Command);
-        } catch (IOException e) {
+
+                if(Command.contains("150"))
+                {
+                    System.out.println("transfer start:");
+
+                    transferSocket=new Socket();
+                    transferSocket.connect(new InetSocketAddress(transferPort),2000);
+
+                }
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 

@@ -59,7 +59,8 @@ class Core extends Thread
     	}
     	catch(Exception ex){};  
     }
-	void SendFile(String command) throws Exception {   
+	void SendFile(String command) throws Exception {
+
     	String filename = fastSplit(command); 
     	
     	File l_file = new File(path + filename);
@@ -79,7 +80,7 @@ class Core extends Thread
     	} else {
 			System.out.println("File on server");
     		//Скачиваем с текущего сервера
-            reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER,"Open ASCII mode data connection.");
+            reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER,"Open ASCII mode data connection. filename:"+filename);
     		TransferStream ts = new TransferStream(5218);
     		
     		FileInputStream fin=new FileInputStream(l_file);
@@ -87,6 +88,7 @@ class Core extends Thread
             byte[] buffer = new byte[1024];
             int count;
             while((count=fin.read(buffer)) > 0){
+            	//(data,start,len)
             	ts.out.write(buffer, 0, count);
             }
             fin.close();      		

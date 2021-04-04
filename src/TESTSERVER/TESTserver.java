@@ -1,11 +1,12 @@
-package ClientTestOnly;
+package TESTSERVER;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client implements Runnable {
+public class TESTserver implements Runnable {
 
     static int port = 5217;
     static int transferPort = 5218;
@@ -19,7 +20,7 @@ public class Client implements Runnable {
 
     String Filename;
 
-    public Client(Socket socket) {
+    public TESTserver(Socket socket) {
         this.mainSocket = socket;
 
         try {
@@ -32,12 +33,22 @@ public class Client implements Runnable {
 
     }
 
-    public static void main(String[] args)  {
-        Socket socket = new Socket();
-        try {
-            socket.connect(new InetSocketAddress(port),2000);
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(5111);
 
-            Client client = new Client(socket);
+
+        Socket clientSocket = null;
+        try {
+            clientSocket = serverSocket.accept();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+
+
+            TESTserver client = new TESTserver(clientSocket);
 
 
 
@@ -52,7 +63,7 @@ public class Client implements Runnable {
                 System.out.print("Input command: ");
                 String command = in.nextLine();
                 System.out.println("command:"+command);
-                client.dout.writeBytes(command+"\n");
+                client.dout.writeBytes(command);
             }
 
 
@@ -72,10 +83,10 @@ public class Client implements Runnable {
         while(true){
 
             try {
-                //dout.writeBytes("TEST lk");
+                dout.writeBytes("TEST lk");
                 String Command=din.readLine();
                 System.out.println("Command:"+Command);
-                //dout.writeBytes("TEST lk");
+                dout.writeBytes("TEST lk");
 
                 if(Command.contains("150"))
                 {
@@ -85,7 +96,7 @@ public class Client implements Runnable {
                     transferSocket.connect(new InetSocketAddress(transferPort),2000);
                     DataInputStream in = new DataInputStream(transferSocket.getInputStream());
                     DataOutputStream out=new DataOutputStream(transferSocket.getOutputStream());
-                    File f = new File("clientFiles/Here.txt");
+                    File f = new File("new.txt");
                     FileOutputStream fout=new FileOutputStream(f);
 
                     byte[] buffer = new byte[1024];

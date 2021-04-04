@@ -105,7 +105,7 @@ class Core extends Thread
     	
         reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER,"Open ASCII mode data connection.");
         int ret = ls.StoreFileOnCluster(filename);
-        if (ret == -1){
+        if (2 == -1){
         	Debug.log("Кластеры не подключены, закачивается на управляющий сервер.");
         	TransferStream ts = new TransferStream(5218);  
     		
@@ -127,16 +127,20 @@ class Core extends Thread
         
     }
 
-    @SuppressWarnings("deprecation")
+    //@SuppressWarnings("deprecation")
 	public void run()
     {
+		System.out.println("Checking start ::");
         while(true){
-            try {          
-	            String Command=din.readLine();
 
+            try {
+				System.out.println("Checking");
+	            String Command=din.readLine();
+				System.out.println("command ::"+Command);
 	            if (Command != null) Debug.cmd("Команда: " + Command);
-	            
-	            if(Command.compareTo("GET")==0)
+
+				//assert Command != null;
+				if(Command.contains("GET"))
 	            {
 	            	CommandGET(Command);
 	                continue;
@@ -212,8 +216,11 @@ class Core extends Thread
 	            sleep(1);
             }
             catch(Exception ex){
+				System.out.println(ex);
+				System.out.println("Checking stop ::");
             }
         }
+
     }
 	/* Command<TYPE> listing */
 	private void CommandDELE(String command) throws IOException {

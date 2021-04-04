@@ -62,27 +62,27 @@ public class ClusterCore extends Thread {
 	            	CommandGET(Command);
 	                continue;
 	            }     
-	            else if(Command.indexOf("LIST")!=-1)
+	            else if(Command.contains("LIST"))
 	            {
 	            	CommandLIST(Command);
 	            	continue;
 	            }       
-	            else if(Command.indexOf("SYNX")!=-1)
+	            else if(Command.contains("SYNX"))
 	            {
 	            	CommandSYNX(Command);
 	            	continue;
 	            }       
-	            else if(Command.indexOf("DELE")!=-1)
+	            else if(Command.contains("DELE"))
 	            {
 	            	CommandDELE(Command);
 	                continue;
 	            }       
-	            else if(Command.indexOf("RETR")!=-1)
+	            else if(Command.contains("RETR"))
 	            {
 	            	CommandRETR(Command);
 	            	continue;
 	            }    
-	            else if(Command.indexOf("STOR")!=-1)
+	            else if(Command.contains("STOR"))
 	            {
 	            	CommandSTOR(Command);
 	            	continue;

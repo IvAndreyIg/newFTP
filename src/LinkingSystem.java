@@ -36,6 +36,7 @@ public class LinkingSystem {
 	}
 	void TryConnect(String address,int port,int allocated_memory){
 		try{
+			//создаем подлкючение с помощью Socket
 			VirtualClient l_vc = new VirtualClient(address,port);
 			l_vc.allocated_memory = allocated_memory;
 			VirtualClientList.add(l_vc);
@@ -124,7 +125,7 @@ public class LinkingSystem {
 	public int StoreFileOnCluster(String filename) throws IOException{
 		if (!VirtualClientList.isEmpty()){
 			int c = GenCluster();
-			Debug.dev("\tВыбран кластер нормер - " + c);
+			Debug.dev("\tВыбран кластер номер - " + c);
 			VirtualClientList.get(c).StorRemoteFile(filename);
 
 			return 0;

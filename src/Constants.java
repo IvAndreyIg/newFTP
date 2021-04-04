@@ -10,7 +10,8 @@ public class Constants {
 	public final static int COMMAND_CORRECT = 200;
 	public final static int EXTENDED_PASSIVE_MODE = 229;
 	public final static int PASS_REQUIRED = 221;
-	public final static int FILE_STATUS_OK_OPEN_TRANSFER = 150;;
+	public final static int FILE_STATUS_OK_OPEN_TRANSFER_SEND = 150;
+	public final static int FILE_STATUS_OK_OPEN_TRANSFER_RECEIVE = 151;
 	public final static int SYSTEM_TYPE = 215;
 	public final static int TRANSFER_COMPLETE_CLOSE_TRANSFER = 226;
 	public final static int COMMAND_NOT_IMPLEMENTED = 500; //Команда не понята (не верный синтаксический разбор)

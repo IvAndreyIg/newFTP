@@ -72,7 +72,7 @@ class Core extends Thread
     			
     			if (file[0].indexOf(filename)!=-1){
     				Debug.dev("Файл нашелся на адресе " + file[1]);
-    				reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER,"Open ASCII mode data connection.");
+    				reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.");
     				ls.GetRemoteFileFromClusters(filename, file[1]);
     				reply(Constants.TRANSFER_COMPLETE_CLOSE_TRANSFER, "Transfer complete.");
     			}		
@@ -80,7 +80,7 @@ class Core extends Thread
     	} else {
 			System.out.println("File on server");
     		//Скачиваем с текущего сервера
-            reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER,"Open ASCII mode data connection. filename:"+filename);
+            reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection. filename:"+filename);
     		TransferStream ts = new TransferStream(5218);
     		
     		FileInputStream fin=new FileInputStream(l_file);
@@ -103,7 +103,7 @@ class Core extends Thread
     {
     	String filename = fastSplit(command);
     	
-        reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER,"Open ASCII mode data connection.");
+        reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_RECEIVE,"Open ASCII mode data connection.");
         int ret = ls.StoreFileOnCluster(filename);
         if (ret == -1){
         	Debug.log("Кластеры не подключены, закачивается на управляющий сервер.");
@@ -130,13 +130,17 @@ class Core extends Thread
     @SuppressWarnings("deprecation")
 	public void run()
     {
+
         while(true){
-            try {          
+
+            try {
+				//принимаем команду
 	            String Command=din.readLine();
 
 	            if (Command != null) Debug.cmd("Команда: " + Command);
-	            
-	            if(Command.compareTo("GET")==0)
+
+				//assert Command != null;
+				if(Command.contains("GET"))
 	            {
 	            	CommandGET(Command);
 	                continue;
@@ -161,7 +165,7 @@ class Core extends Thread
 	            	CommandTYPE(Command);
 	                continue;
 	            }     
-	            else if(Command.compareTo("EPSV")==0)
+	            else if(Command.contains("EPSV"))
 	            {
 	            	CommandEPSV(Command);
 	                continue;
@@ -186,7 +190,7 @@ class Core extends Thread
 	            	CommandFEAT(Command);
 	                continue;
 	            }             
-	            else if(Command.compareTo("SEND")==0)
+	            else if(Command.contains("SEND"))
 	            {
 	            	CommandSEND(Command);
 	                continue;
@@ -212,8 +216,11 @@ class Core extends Thread
 	            sleep(1);
             }
             catch(Exception ex){
+				System.out.println(ex);
+				//System.out.println("Checking stop ::");
             }
         }
+
     }
 	/* Command<TYPE> listing */
 	private void CommandDELE(String command) throws IOException {
@@ -250,7 +257,7 @@ class Core extends Thread
 
         ReloadableFileList = ls.GetRemoteListFromClusters();
         
-        reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER,"Open ASCII mode data connection.");
+        reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.");
 
 		TransferStream ts = new TransferStream(5218);
 		
@@ -273,14 +280,7 @@ class Core extends Thread
         System.out.println("\tGET Command Received ...");
         SendFile(command);
     }
-	private void CommandCLOSE(String command) {
-        System.out.println("\tDisconnect Command Received ...");
-        System.exit(1);	
-	}
-	private void CommandQUIT(String command) {
-        System.out.println("\tDisconnect Command Received ...");
-        System.exit(1);
-	}
+
 	private void CommandSEND(String command) throws Exception {
         System.out.println("\tSEND Command Receiced ...");                
         ReceiveFile(command);
@@ -302,14 +302,23 @@ class Core extends Thread
         System.out.println("\tSYST Command Received ...");
         reply(Constants.SYSTEM_TYPE,"Windows");
 	}
+	private void CommandEPSV(String command) throws IOException {
+		System.out.println("\tEPSV Command Received ...");
+		reply(Constants.EXTENDED_PASSIVE_MODE,"Entering Extended Passive Mode (|||5218|)");
+	}
+	private void CommandCLOSE(String command) {
+		System.out.println("\tDisconnect Command Received ...");
+		System.exit(1);
+	}
+	private void CommandQUIT(String command) {
+		System.out.println("\tDisconnect Command Received ...");
+		System.exit(1);
+	}
 	private void CommandUSER(String command) throws IOException {
         System.out.println("\tUSER Command Received ...");
         InitLogin(command);
 	}
-	private void CommandEPSV(String command) throws IOException {
-        System.out.println("\tEPSV Command Received ...");
-        reply(Constants.EXTENDED_PASSIVE_MODE,"Entering Extended Passive Mode (|||5218|)");	 
-	}
+
 	private void CommandTYPE(String command) throws IOException {
 		String arg = fastSplit(command);
 		System.out.println("\tTYPE "+ arg + " Command Received ...");

@@ -106,6 +106,7 @@ class Core extends Thread
         reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_RECEIVE,"Open ASCII mode data connection.");
         int ret = ls.StoreFileOnCluster(filename);
         if (ret == -1){
+			System.out.println("send on server");
         	Debug.log("Кластеры не подключены, закачивается на управляющий сервер.");
         	TransferStream ts = new TransferStream(5218);  
     		

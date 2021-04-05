@@ -83,6 +83,7 @@ public class Client implements Runnable {
                     transferSocket=new Socket();
                     transferSocket.connect(new InetSocketAddress(transferPort),2000);
 
+                    System.out.println("Send End");
                 }
 
             } catch (IOException e) {

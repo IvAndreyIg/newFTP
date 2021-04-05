@@ -124,6 +124,7 @@ public class LinkingSystem {
 	}
 	public int StoreFileOnCluster(String filename) throws IOException{
 		if (!VirtualClientList.isEmpty()){
+			System.out.println("send on cluster");
 			int c = GenCluster();
 			Debug.dev("\tВыбран кластер номер - " + c);
 			VirtualClientList.get(c).StorRemoteFile(filename);

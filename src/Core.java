@@ -102,6 +102,7 @@ class Core extends Thread
     void ReceiveFile(String command) throws Exception
     {
     	String filename = fastSplit(command);
+
     	
         reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_RECEIVE,"Open ASCII mode data connection.");
         int ret = ls.StoreFileOnCluster(filename);

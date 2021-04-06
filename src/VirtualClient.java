@@ -62,7 +62,8 @@ public class VirtualClient {
         int count;
         
         TransferStream ts = new TransferStream(5218);
-        
+
+        //пересылка файлов через сервер
         while((count = vc_in.read(buffer)) >= 0){
         	ts.out.write(buffer, 0, count);
         	if (count != 1024) break;
@@ -74,12 +75,12 @@ public class VirtualClient {
 		Debug.method("DeleteRemoteFile Start");
 		SendToCluster("DELE " + filename);
 	}
-	public void StorRemoteFile(String filename) throws IOException{
+	public void StorRemoteFile(String filename, DataOutputStream dout) throws IOException{
 		Debug.method("StorRemoteFile Start");
 		SendToCluster("STOR " + filename);
 		
-		TransferStream ts = new TransferStream(5218); 
-
+		TransferStream ts = new TransferStream(5218);
+	//	dout.writeBytes(filename+":"+vc_address+":"+5218);
         byte[] buffer = new byte[1024];
         int count;
         

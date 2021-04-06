@@ -122,12 +122,20 @@ public class LinkingSystem {
 		
 		Debug.method("\tGetRemoteFileFromClusters Command end ...");
 	}
-	public int StoreFileOnCluster(String filename) throws IOException{
+	public int StoreFileOnCluster(String filename, DataOutputStream dout) throws IOException{
 		if (!VirtualClientList.isEmpty()){
 			System.out.println("send on cluster");
 			int c = GenCluster();
+
 			Debug.dev("\tВыбран кластер номер - " + c);
-			VirtualClientList.get(c).StorRemoteFile(filename);
+			System.out.println(filename+":"+VirtualClientList.get(c).vc_address+":"+VirtualClientList.get(c).vc_port);
+
+			//отправляем пользователю имя файла, который будет отправлятся,
+			// адресс класстера и порт для подлюкчения через сокет
+
+
+
+			VirtualClientList.get(c).StorRemoteFile(filename,dout);
 
 			return 0;
 		} else {
@@ -137,6 +145,7 @@ public class LinkingSystem {
 	public int GenCluster(){
 		return MathTable();
 	}
+	//математическая часть
 	public int MathTable(){
 		System.out.println("=============== TABLE ===============");
 		

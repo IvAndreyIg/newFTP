@@ -16,10 +16,14 @@ public class Client implements Runnable {
 
     Socket transferSocket;
 
+    String secondArgument="";
+
     DataInputStream din;
     DataOutputStream dout;
 
-    String Filename;
+    String filesDir="clientFiles/";
+
+
 
     public Client(Socket socket) {
         this.mainSocket = socket;
@@ -50,10 +54,30 @@ public class Client implements Runnable {
 
             while(true){
 
-
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 System.out.print("Input command: ");
                 String command = in.nextLine();
+
+                try {
+                    if(firstSplit(command).equals("LIST"))
+                        client.secondArgument="list.txt";
+                    else{
+                        client.secondArgument=secondSplit(command);
+                    }
+
+
+                }catch (Exception e){
+
+                }
+
+
+
                 System.out.println("command:"+command);
+
                 client.dout.writeBytes(command+"\n");
             }
 
@@ -67,6 +91,14 @@ public class Client implements Runnable {
 
 
     }
+    static String  firstSplit(String command){
+        String[] arg = command.split(" ");
+        return arg[0];
+    }
+    static String  secondSplit(String command){
+        String[] arg = command.split(" ");
+        return arg[1];
+    }
 
     @Override
     public void run() {
@@ -74,10 +106,9 @@ public class Client implements Runnable {
         while(true){
 
             try {
-                //dout.writeBytes("TEST lk");
+
                 String Command=din.readLine();
                 System.out.println("Command:"+Command);
-                //dout.writeBytes("TEST lk");
 
                 if(Command.contains("150"))
                 {
@@ -88,14 +119,9 @@ public class Client implements Runnable {
                     DataInputStream in = new DataInputStream(transferSocket.getInputStream());
                     DataOutputStream out=new DataOutputStream(transferSocket.getOutputStream());
 
-
-                    SimpleDateFormat formatter = new SimpleDateFormat("ss");
-                    String time = formatter.format(new Date());
-
-
-
-
-                    File f = new File("clientFiles/Here"+time+".txt");
+                    File f = new File(filesDir+secondArgument);
+                    System.out.println("arg:"+secondArgument);
+                    secondArgument="";
                     FileOutputStream fout=new FileOutputStream(f);
 
                     byte[] buffer = new byte[1024];
@@ -106,7 +132,7 @@ public class Client implements Runnable {
                     }
                     fout.close();
                     transferSocket.close();
-                    //dsoc.close();
+
                 }
 
                 if(Command.contains("151")){
@@ -116,17 +142,8 @@ public class Client implements Runnable {
                     DataInputStream in = new DataInputStream(transferSocket.getInputStream());
                     DataOutputStream out=new DataOutputStream(transferSocket.getOutputStream());
 
-
-                    SimpleDateFormat formatter = new SimpleDateFormat("ss");
-                    String time = formatter.format(new Date());
-
-
-
-
-                    File f = new File("clientFiles/Here12.txt");
-
-
-
+                    File f = new File(filesDir+secondArgument);
+                    secondArgument="";
 
                     FileInputStream fin=new FileInputStream(f);
 

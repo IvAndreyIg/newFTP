@@ -14,7 +14,7 @@ class Core extends Thread
     static ExtendedFileList FileList = new ExtendedFileList();
     static ExtendedFileList ReloadableFileList = new ExtendedFileList();
     
-	LinkingSystem ls = new LinkingSystem();
+	LinkingSystem ls = null;
 	
     Socket ClientSoc;
     ServerSocket dsoc;
@@ -29,6 +29,7 @@ class Core extends Thread
     
     String path = "files/";
 	ArrayList<String> Users;
+	private DBConnector connector;
 
 	/**
 	 *
@@ -36,9 +37,14 @@ class Core extends Thread
 	 *
 	 *
 	 * @param soc
+	 * @param connector
 	 */
-	Core(Socket soc){
-    	try {
+	Core(Socket soc, DBConnector connector){
+
+		try {
+			this.connector = connector;
+			ls = new LinkingSystem(this.connector);
+
     		ClientSoc=soc;
 			System.out.println("localadreess:"+soc.getLocalAddress().getHostAddress());
 //            din=new DataInputStream(ClientSoc.getInputStream());
@@ -107,7 +113,7 @@ class Core extends Thread
 
         int ret = ls.StoreFileOnCluster(fileName);
         if (ret == -1){
-			System.out.println("send on server");
+			//System.out.println("send on server");
         	Debug.log("Кластеры не подключены, закачивается на управляющий сервер.");
         	TransferStream ts = new TransferStream(5218);
 			//dout.writeBytes(filename+":"+VirtualClientList.get(c).vc_address+":"+VirtualClientList.get(c).vc_port);

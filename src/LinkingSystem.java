@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 public class LinkingSystem {
@@ -9,28 +10,31 @@ public class LinkingSystem {
 	
 	ExtendedFileList ReloadableFileList = new ExtendedFileList();
 	
-	LinkingSystem(){
+	LinkingSystem(DBConnector connector){
 
 
 		//
 		System.out.println("LINKING SYSTEM INIT");
-		File file = new File( "clusters.txt" );
+
 
 		ClusterAddress = new ArrayList<String>();
 		VirtualClientList = new ArrayList<VirtualClient>();
 		try {
-	        BufferedReader br = new BufferedReader (
-	            new InputStreamReader(
-	                new FileInputStream( file ), "UTF-8"
-	            )
-	        );
-	        String line = null;
-	        while ((line = br.readLine()) != null) {
-	            Debug.log(" Хранилище: " + line + " загружено из конфигурации");
-	            ClusterAddress.add(line);
-	        }
-	        br.close();
-	        for (int i=0;i <= ClusterAddress.size();i++){
+
+	       // String line = null;
+
+
+
+			HashSet<String> clusters = connector.getClusters();
+
+
+			clusters.forEach(line->{
+				Debug.log(" Хранилище: " + line + " загружено из конфигурации");
+				ClusterAddress.add(line);
+			});
+
+
+			for (int i=0;i <= ClusterAddress.size();i++){
 	        	String[] arg = ClusterAddress.get(i).split(":");
 	        	TryConnect(arg[0],Integer.parseInt(arg[1]),Integer.parseInt(arg[2]));
 	        }

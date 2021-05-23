@@ -17,7 +17,8 @@ public class FTPServer
 //
 			if(mode.split(" ")[0].equals("server")){
 
-
+		//	int tempPort=Integer.parseInt(mode.split(" ")[1]);
+			//if( instanceof Integer){}
 	        ServerSocket soc=new ServerSocket(port);
 	        Debug.main("FTP Server запущен на порту " + port);
 	        while(true)

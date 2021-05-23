@@ -1,5 +1,5 @@
 
-public class Constants {
+public class Constants  {
 	public static boolean DEBUG = true;
 	
 	public final static int WELCOME_CODE = 220;
@@ -10,6 +10,7 @@ public class Constants {
 	public final static int COMMAND_CORRECT = 200;
 	public final static int EXTENDED_PASSIVE_MODE = 229;
 	public final static int PASS_REQUIRED = 221;
+	public final static int LIST_STATUS_OK_OPEN_TRANSFER_SEND = 149;
 	public final static int FILE_STATUS_OK_OPEN_TRANSFER_SEND = 150;
 	public final static int FILE_STATUS_OK_OPEN_TRANSFER_RECEIVE = 151;
 	public final static int SYSTEM_TYPE = 215;

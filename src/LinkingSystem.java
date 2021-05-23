@@ -10,6 +10,10 @@ public class LinkingSystem {
 	ExtendedFileList ReloadableFileList = new ExtendedFileList();
 	
 	LinkingSystem(){
+
+
+		//
+		System.out.println("LINKING SYSTEM INIT");
 		File file = new File( "clusters.txt" );
 
 		ClusterAddress = new ArrayList<String>();
@@ -122,7 +126,7 @@ public class LinkingSystem {
 		
 		Debug.method("\tGetRemoteFileFromClusters Command end ...");
 	}
-	public int StoreFileOnCluster(String filename, DataOutputStream dout) throws IOException{
+	public int StoreFileOnCluster(String filename) throws IOException{
 		if (!VirtualClientList.isEmpty()){
 			System.out.println("send on cluster");
 			int c = GenCluster();
@@ -135,7 +139,7 @@ public class LinkingSystem {
 
 
 
-			VirtualClientList.get(c).StorRemoteFile(filename,dout);
+			VirtualClientList.get(c).StorRemoteFile(filename);
 
 			return 0;
 		} else {

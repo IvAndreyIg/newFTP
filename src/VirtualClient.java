@@ -75,7 +75,7 @@ public class VirtualClient {
 		Debug.method("DeleteRemoteFile Start");
 		SendToCluster("DELE " + filename);
 	}
-	public void StorRemoteFile(String filename, DataOutputStream dout) throws IOException{
+	public void StorRemoteFile(String filename) throws IOException{
 		Debug.method("StorRemoteFile Start");
 		SendToCluster("STOR " + filename);
 		

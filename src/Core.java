@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class Core extends Thread
 {
@@ -18,51 +19,65 @@ class Core extends Thread
     Socket ClientSoc;
     ServerSocket dsoc;
 
-    DataInputStream din;
-    DataOutputStream dout;
+//    DataInputStream din;
+//    DataOutputStream dout;
+
+	ObjectOutputStream dout;
+	ObjectInputStream din;
     
     int TransferMode = 0;
     
     String path = "files/";
 	ArrayList<String> Users;
-    
-    Core(Socket soc){	
+
+	/**
+	 *
+	 *
+	 *
+	 *
+	 * @param soc
+	 */
+	Core(Socket soc){
     	try {
     		ClientSoc=soc;
 			System.out.println("localadreess:"+soc.getLocalAddress().getHostAddress());
-            din=new DataInputStream(ClientSoc.getInputStream());
-            dout=new DataOutputStream(ClientSoc.getOutputStream());
+//            din=new DataInputStream(ClientSoc.getInputStream());
+//            dout=new DataOutputStream(ClientSoc.getOutputStream());
+
+			dout = new ObjectOutputStream(ClientSoc.getOutputStream());
+
+			din = new ObjectInputStream(ClientSoc.getInputStream());
+
             Debug.main("FTP Клиент подключился ...");
             reply(Constants.WELCOME_CODE, "Welcome to Avalon");
             /*необходимо добавить инициализацию кластеров
 			и их памяти как в методе  CommandLIST(String command)*/
-
+			InitFilesLists();
             start();
         } catch(Exception ex){};        
     }
 
-	void SendFile(String command) throws Exception {
+	void SendFile(String filePath, String fileName) throws Exception {
 
-    	String filename = fastSplit(command); 
-    	
-    	File l_file = new File(path + filename);
+
+    	File l_file = new File(path + fileName);
     	if (!l_file.exists()){
 			System.out.println("File on cluster");
     		//Скачиваем с кластера
     		for (int i=0; i<ReloadableFileList.length(); i++){
     			String[] file = ReloadableFileList.get(i);
     			
-    			if (file[0].indexOf(filename)!=-1){
+    			if (file[0].contains(fileName)){
     				Debug.dev("Файл нашелся на адресе " + file[1]);
-    				reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.");
-    				ls.GetRemoteFileFromClusters(filename, file[1]);
+    				reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.",filePath);
+    				ls.GetRemoteFileFromClusters(fileName, file[1]);
     				reply(Constants.TRANSFER_COMPLETE_CLOSE_TRANSFER, "Transfer complete.");
     			}		
     		} 
     	} else {
 			System.out.println("File on server");
     		//Скачиваем с текущего сервера
-            reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection. filename:"+filename);
+            reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection. filename:"+fileName,filePath);
 
     		TransferStream ts = new TransferStream(5218);
     		
@@ -82,21 +97,21 @@ class Core extends Thread
             dsoc.close();   		
     	}
     }
-    void ReceiveFile(String command) throws Exception
+    void ReceiveFile(String filePath, String fileName) throws Exception
     {
-    	String filename = fastSplit(command);
+
 
     	//soc.getLocalAddress().getHostAddress()
     	
-        reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_RECEIVE,"Open ASCII mode data connection.");
+        reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_RECEIVE,"Open ASCII mode data connection.",filePath);
 
-        int ret = ls.StoreFileOnCluster(filename,dout);
+        int ret = ls.StoreFileOnCluster(fileName);
         if (ret == -1){
 			System.out.println("send on server");
         	Debug.log("Кластеры не подключены, закачивается на управляющий сервер.");
         	TransferStream ts = new TransferStream(5218);
 			//dout.writeBytes(filename+":"+VirtualClientList.get(c).vc_address+":"+VirtualClientList.get(c).vc_port);
-        	File f = new File(path + filename);
+        	File f = new File(path + fileName);
         	FileOutputStream fout=new FileOutputStream(f);
 
             byte[] buffer = new byte[1024];
@@ -118,8 +133,10 @@ class Core extends Thread
 
 	/* Command<TYPE> listing */
 	@SuppressWarnings("deprecation")
-	private void CommandDELE(String command) throws IOException {
-		String filename = fastSplit(command);
+	private void CommandDELE(String filename) throws IOException {
+
+		System.out.println("filename"+filename);
+		//
 		File f = new File(path + filename);
 		if (!f.exists()){
     		for (int i=0; i<ReloadableFileList.length(); i++){
@@ -138,15 +155,33 @@ class Core extends Thread
 		}
 	}
 
+	/**
+	 * инициализуем списки с файлами
+	 * если этого не сделать, то не будет видно какие файлы
+	 * есть на сервере и кластерах при использование
+	 * комманд GET,DELETE и т.д.
+	 *
+	 */
+	private void InitFilesLists(){
 
-	private void CommandLIST(String command) throws IOException {
-	System.out.println("\tLIST Command Received ...");
-	ReloadableFileList.clear();
-	LoadLocalFiles();
+		//очищаем список файлов с кластоеров
+		ReloadableFileList.clear();
+		//подгружаем список локальных файлов на главном сервере
+		LoadLocalFiles();
+		//подгружаем список файлов с кластеров
+		ReloadableFileList = ls.GetRemoteListFromClusters();
+	}
 
-	ReloadableFileList = ls.GetRemoteListFromClusters();
 
-	reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.");
+	private void CommandLIST(String filePath, String fileName,String text) throws IOException {
+
+	InitFilesLists();
+
+
+	if (text.equals("refresh"))
+		reply(Constants.LIST_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.",filePath);
+	else
+	reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.",filePath);
 
 	TransferStream ts = new TransferStream(5218);
 
@@ -164,18 +199,18 @@ class Core extends Thread
 	ls.MathTable();
 	reply(226, "Transfer complete.");
 
-}
+	}
 
 
-	private void CommandSEND(String command) throws Exception {
+	private void CommandSEND(String path, String name) throws Exception {
 		System.out.println("\tSEND Command Receiced ...");
-		ReceiveFile(command);
+		ReceiveFile(path,name);
 
 	}
 
-	private void CommandGET(String command) throws Exception {
-	System.out.println("\tGET Command Received ...");
-	SendFile(command);
+	private void CommandGET(String path, String name) throws Exception {
+		System.out.println("\tGET Command Received ...");
+		SendFile(path,name);
 	}
 
 	private void CommandCLOSE(String command) {
@@ -186,55 +221,55 @@ class Core extends Thread
 	//что вообще должна делать эта команда ?
 	private void CommandFEAT(String command) throws IOException {
 		System.out.println("\tFEAT Command Received ...");
-		dout.writeBytes("211-Features: \n");
-		dout.writeBytes("EPRT \n");
-		dout.writeBytes("EPSV \n");
-		dout.writeBytes("MDTM \n");
-		dout.writeBytes("PASV \n");
-		dout.writeBytes("REST STREAM \n");
-		dout.writeBytes("SIZE \n");
-		dout.writeBytes("TVFS \n");
-		dout.writeBytes("UTF8 \n");
-		dout.writeBytes("211 End \n");
+//		dout.writeBytes("211-Features: \n");
+//		dout.writeBytes("EPRT \n");
+//		dout.writeBytes("EPSV \n");
+//		dout.writeBytes("MDTM \n");
+//		dout.writeBytes("PASV \n");
+//		dout.writeBytes("REST STREAM \n");
+//		dout.writeBytes("SIZE \n");
+//		dout.writeBytes("TVFS \n");
+//		dout.writeBytes("UTF8 \n");
+//		dout.writeBytes("211 End \n");
 	}
 
 	/////команды, выполняющие функции других команд, может фунционал должен быть расширен
-	private void CommandRETR(String command) throws Exception {
-		System.out.println("\tRETR Command Received ...");
-		SendFile(command);
-	}
-
-	private void CommandSTOR(String command) throws Exception {
-		System.out.println("\tSTOR Command Received ...");
-		ReceiveFile(command);
-	}
+//	private void CommandRETR(String command) throws Exception {
+//		System.out.println("\tRETR Command Received ...");
+//		SendFile(command);
+//	}
+//
+//	private void CommandSTOR(String command) throws Exception {
+//		System.out.println("\tSTOR Command Received ...");
+//		ReceiveFile(command);
+//	}
 	/////
 
 	/////не работающие команды
-	private void CommandUSER(String command) throws IOException {
-		System.out.println("\tUSER Command Received ...");
-		InitLogin(command);
-	}
-	private void CommandQUIT(String command) {
-		System.out.println("\tDisconnect Command Received ...");
-		System.exit(1);
-	}
-	private void CommandPWD(String command) throws IOException {
-        System.out.println("\tPWD Command Received ...");
-        reply(Constants.SUCCESSFUL_REQUEST,"\"/\" is current directory.");
-	}
-	private void CommandCWD(String command) throws IOException {
-		System.out.println("\tCWD Command Received ...");
-        reply(Constants.PATH_CREATE,"\"/\" is current directory.");
-	}
-	private void CommandSYST(String command) throws IOException {
-	System.out.println("\tSYST Command Received ...");
-	reply(Constants.SYSTEM_TYPE,"Windows");
-}
-	private void CommandEPSV(String command) throws IOException {
-		System.out.println("\tEPSV Command Received ...");
-		reply(Constants.EXTENDED_PASSIVE_MODE,"Entering Extended Passive Mode (|||5218|)");
-	}
+//	private void CommandUSER(String command) throws IOException {
+//		System.out.println("\tUSER Command Received ...");
+//		InitLogin(command);
+//	}
+//	private void CommandQUIT(String command) {
+//		System.out.println("\tDisconnect Command Received ...");
+//		System.exit(1);
+//	}
+//	private void CommandPWD(String command) throws IOException {
+//        System.out.println("\tPWD Command Received ...");
+//        reply(Constants.SUCCESSFUL_REQUEST,"\"/\" is current directory.");
+//	}
+//	private void CommandCWD(String command) throws IOException {
+//		System.out.println("\tCWD Command Received ...");
+//        reply(Constants.PATH_CREATE,"\"/\" is current directory.");
+//	}
+//	private void CommandSYST(String command) throws IOException {
+//	System.out.println("\tSYST Command Received ...");
+//	reply(Constants.SYSTEM_TYPE,"Windows");
+//}
+//	private void CommandEPSV(String command) throws IOException {
+//		System.out.println("\tEPSV Command Received ...");
+//		reply(Constants.EXTENDED_PASSIVE_MODE,"Entering Extended Passive Mode (|||5218|)");
+//	}
 	/////
 
 
@@ -242,8 +277,39 @@ class Core extends Thread
 
 
     int reply(int code, String text) throws IOException{
-    	dout.writeBytes(code + " " + text + "\n");
+
+
+
+		//Создаем тело сообщения
+		HashMap<String, Object> newMessage = new HashMap<>();
+		//Устанавливаем код
+		newMessage.put("code",code);
+		//Устанавливаем текст
+		newMessage.put("text",text);
+		//Устанавливаем пусть
+		newMessage.put("path","");
+		//Отправляем сообщение серверу
+		 dout.writeObject(newMessage);
+
+
+    //	dout.writeBytes(code + " " + text + "\n");
     	return code;
+	}
+	int reply(int code, String text,String path) throws IOException{
+
+		//Создаем тело сообщения
+		HashMap<String, Object> newMessage = new HashMap<>();
+		//Устанавливаем код
+		newMessage.put("code",String.valueOf(code));
+		//Устанавливаем текст
+		newMessage.put("text",text);
+		//Устанавливаем пусть
+		newMessage.put("path",path);
+		//Отправляем сообщение серверу
+		try { dout.writeObject(newMessage);
+		} catch (IOException e) { e.printStackTrace();
+		}
+		return code;
 	}
     String fastSplit(String command){
     	String[] arg = command.split(" ");
@@ -321,98 +387,127 @@ class Core extends Thread
 
 	public void run()
 	{
+		int errors =0;
 
 		while(true){
 
 			try {
 				//принимаем команду
-				String Command=din.readLine();
 
-				if (Command != null) Debug.cmd("Команда: " + Command);
+				HashMap<String, Object> receivedMessage;
+				String command="";
+				String filePath="";
+				String fileName="";
+				String text="";
+				try {
+					//считываем полученную команду
+					receivedMessage=(HashMap<String, Object>)din.readObject();
+					command=receivedMessage.get("command").toString();
+					filePath=receivedMessage.get("path").toString();
+					fileName=receivedMessage.get("name").toString();
+					fileName=receivedMessage.get("name").toString();
+					text=receivedMessage.get("text").toString();
 
-				//assert Command != null;
+
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+
+				//String command=din.readLine();
+
+				if (command != null) Debug.cmd("Команда: " + command);
+
+				//assert command != null;
 				/*необходимо изменить следущее "дерево" условных операторов,
 				 убрать if и заменить на switch,
 				 также добавить проверку авторизации из метода InitLogin(String command) */
 
-				if(Command.contains("GET"))
+				if(command.contains("GET"))
 				{
-					CommandGET(Command);
+					CommandGET(filePath,fileName);
 					continue;
 				}
-				else if(Command.contains("LIST"))
+				else if(command.contains("LIST"))
 				{
-					CommandLIST(Command);
+					CommandLIST(filePath,fileName,text);
 					continue;
 				}
-				else if(Command.contains("SEND"))
+				else if(command.contains("SEND"))
 				{
-					CommandSEND(Command);
+					CommandSEND(filePath,fileName);
 					continue;
 				}
-				else if(Command.contains("DELETE"))
+				else if(command.contains("DELETE"))
 				{
-					CommandDELE(Command);
+					CommandDELE(fileName);
 					continue;
 				}
-				else if(Command.compareTo("CLOSE")==0){
-					CommandCLOSE(Command);
-				}
-				/*else if(Command.contains("RETR"))
+//				else if(command.compareTo("CLOSE")==0){
+//					CommandCLOSE(command);
+//				}
+				/*else if(command.contains("RETR"))
 				{
-					CommandRETR(Command);
+					CommandRETR(command);
 					continue;
 				}*/
 
-				/*else if(Command.contains("CWD"))
+				/*else if(command.contains("CWD"))
 				{
-					CommandCWD(Command);
+					CommandCWD(command);
 					continue;
 				}*/
-				/*else if(Command.contains("PWD"))
+				/*else if(command.contains("PWD"))
 				{
-					CommandPWD(Command);
+					CommandPWD(command);
 					continue;
 				}*/
-				/*else if(Command.contains("TYPE"))
+				/*else if(command.contains("TYPE"))
 				{
-					CommandTYPE(Command);
+					CommandTYPE(command);
 					continue;
 				}*/
-				/*else if(Command.contains("EPSV"))
+				/*else if(command.contains("EPSV"))
 				{
-					CommandEPSV(Command);
+					CommandEPSV(command);
 					continue;
 				}*/
-				/*else if(Command.contains("USER"))
+				/*else if(command.contains("USER"))
 				{
-					CommandUSER(Command);
-					continue;
-				}*/
-
-				/*else if(Command.contains("SYST"))
-				{
-					CommandSYST(Command);
+					CommandUSER(command);
 					continue;
 				}*/
 
-
-				/*else if(Command.contains("STOR"))
+				/*else if(command.contains("SYST"))
 				{
-					CommandSTOR(Command);
+					CommandSYST(command);
 					continue;
 				}*/
 
-				/*else if(Command.compareTo("QUIT")==0){
-					CommandQUIT(Command);
+
+				/*else if(command.contains("STOR"))
+				{
+					CommandSTOR(command);
+					continue;
+				}*/
+
+				/*else if(command.compareTo("QUIT")==0){
+					CommandQUIT(command);
 				}*/
 				 else {
-					reply(Constants.COMMAND_NOT_SUPPORT,"Command not suppot");
+					reply(Constants.COMMAND_NOT_SUPPORT,"command not suppot");
 				}
-				sleep(1);
+				sleep(50);
 			}
 			catch(Exception ex){
 				System.out.println(ex);
+				try {
+					sleep(30);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				errors++;
+				if(errors>2)
+					break;
 				//System.out.println("Checking stop ::");
 			}
 		}
@@ -446,25 +541,25 @@ class Core extends Thread
 	}
 	//модуль не работает,необходимо доделать
 	private void CommandTYPE(String command) throws IOException {
-		String arg = fastSplit(command);
-		System.out.println("\tTYPE "+ arg + " Command Received ...");
+//		String arg = fastSplit(command);
+//		System.out.println("\tTYPE "+ arg + " Command Received ...");
 
-		if (arg.equals("A")){
-			SetTransferMode("ASCII");
-			reply(Constants.COMMAND_CORRECT,"Switching to A - ASCII text.");
-		}
-		else if (arg.equals("E")){
-			SetTransferMode("EBCDIC");
-			reply(Constants.COMMAND_CORRECT,"Switching to E - EBCDIC text.");
-		}
-		else if (arg.equals("I")){
-			SetTransferMode("BINARY");
-			reply(Constants.COMMAND_CORRECT,"Switching to I - image (binary data).");
-		}
-		else if (arg.equals("L")){
-			SetTransferMode("LOCAL");
-			reply(Constants.COMMAND_CORRECT,"Switching to L - local format.");
-		}
+//		if (arg.equals("A")){
+//			SetTransferMode("ASCII");
+//			reply(Constants.COMMAND_CORRECT,"Switching to A - ASCII text.");
+//		}
+//		else if (arg.equals("E")){
+//			SetTransferMode("EBCDIC");
+//			reply(Constants.COMMAND_CORRECT,"Switching to E - EBCDIC text.");
+//		}
+//		else if (arg.equals("I")){
+//			SetTransferMode("BINARY");
+//			reply(Constants.COMMAND_CORRECT,"Switching to I - image (binary data).");
+//		}
+//		else if (arg.equals("L")){
+//			SetTransferMode("LOCAL");
+//			reply(Constants.COMMAND_CORRECT,"Switching to L - local format.");
+//		}
 	}
 	//модуль необходимо переработать
 	private void SetTransferMode(String string) {

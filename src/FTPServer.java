@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class FTPServer
 {
-	static int port = 5217;
+	static int port;
 	
     public static void main(String args[]) throws Exception
     {
@@ -22,17 +22,13 @@ public class FTPServer
 
 		DBConnector connector=null;
 //
+
 			if(lineArgs[0].equals("server")){
 
+				port=5217;
 
 
-				if (lineArgs.length==1){
 
-					//базовые настройки
-					connector=new LocalDBConnector();
-					connector.connect();
-
-				}
 				if (lineArgs.length>1){
 
 					//выбор порта
@@ -40,6 +36,7 @@ public class FTPServer
 
 
 				}
+				//настройки получения данных о кластерах и клиентах
 				if (lineArgs.length>5){
 
 					String dbType=lineArgs[2];
@@ -70,6 +67,10 @@ public class FTPServer
 					}
 
 
+				}else{
+
+					connector=new LocalDBConnector();
+					connector.connect();
 				}
 
 

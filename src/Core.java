@@ -321,16 +321,19 @@ class Core extends Thread
     	String[] arg = command.split(" ");
     	return arg[1];
     }
-    void LoadLocalFiles(){
-    	if (!loaded){
+   synchronized void  LoadLocalFiles(){
+    	// эту строчку написала тварина
+    //	if (!loaded){
 	        File dir = new File(path);
 	        String fileNames[] = dir.list();
-	        
+
+	   		FileList = new ExtendedFileList();
+
 	        for (int i = 0; i<fileNames.length;i++){
 	        	FileList.add(fileNames[i], "localhost");
 	        }
 	        loaded = true;
-    	}   	
+    //	}
     }
 
 

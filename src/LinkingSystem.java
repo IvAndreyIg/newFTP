@@ -85,6 +85,7 @@ public class LinkingSystem {
 				return ReloadableFileList;
 			}
 		} else {
+			//System.out.println("EMPTY1");
 			Debug.method("\tGetRemoteListFromClusters END");
 			return ReloadableFileList;
 		}
@@ -225,6 +226,10 @@ public class LinkingSystem {
 				if (num[i] >= 2) return i; 
 			}
 			
+		}
+		else {
+		//	System.out.println("EMPTY2");
+			Debug.method("\tGetRemoteListFromClusters END");
 		}
 		System.out.println("============ TABLE END ==============");
 		return 0;

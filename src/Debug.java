@@ -2,10 +2,10 @@
 public class Debug {
 	public static boolean log = true;
 	public static boolean file = true;
-	public static boolean method = false;
+	public static boolean method = true;
 	public static boolean main = true;
 	public static boolean cmd = true;
-	public static boolean dev = false;
+	public static boolean dev = true;
 	
 	public static void log(String msg){
 		if (log) System.out.println("[LOG] " + msg);

@@ -24,11 +24,17 @@ class Core extends Thread
 
 	ObjectOutputStream dout;
 	ObjectInputStream din;
-    
+
+	boolean auth = false;
+
+	int role = 10;
+
+
     int TransferMode = 0;
     
     String path = "files/";
 	ArrayList<String> Users;
+	HashMap<String,String> usersMap	;
 	private DBConnector connector;
 
 	/**
@@ -224,6 +230,21 @@ class Core extends Thread
 		System.exit(1);
 	}
 
+
+
+	private void CommandTEST(String command) {
+		System.out.println("\tDisconnect Command Received ...");
+		testMathTable();
+		//System.exit(1);
+	}
+
+	private void testMathTable() {
+
+
+		//ls.MathTable();
+		ls.MathTest();
+	}
+
 	//что вообще должна делать эта команда ?
 	private void CommandFEAT(String command) throws IOException {
 		System.out.println("\tFEAT Command Received ...");
@@ -252,10 +273,10 @@ class Core extends Thread
 	/////
 
 	/////не работающие команды
-//	private void CommandUSER(String command) throws IOException {
-//		System.out.println("\tUSER Command Received ...");
-//		InitLogin(command);
-//	}
+	private void CommandAUTH(String login,String password) throws IOException {
+		System.out.println("\tUSER Command Received ...");
+		InitLogin(login,password);
+	}
 //	private void CommandQUIT(String command) {
 //		System.out.println("\tDisconnect Command Received ...");
 //		System.exit(1);
@@ -368,30 +389,16 @@ class Core extends Thread
 
     private void LoadUserList() {
     	Debug.method("LoadUserList");
-    	Users = new ArrayList<String>();
-		File file = new File( "users.txt" );
-		try {
-			if(!file.exists()) {
-				file.createNewFile();
-				FileOutputStream fout=new FileOutputStream(file); 	
-				fout.write(("admin pass" + "\r\n").getBytes());
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    	try {
-	        BufferedReader br = new BufferedReader (
-	            new InputStreamReader(
-	                new FileInputStream( file ), "UTF-8"
-	            )
-	        );
-	        String line = null;
-	        while ((line = br.readLine()) != null) {
-	        	Users.add(line);
-	        	//Debug.log("Пользователь " + line);
-	        }
-	        br.close();
-		} catch(Exception ex){ ex.printStackTrace();}  
+
+
+		usersMap=connector.getUsers();
+
+
+
+
+
+
+
 	}
 
 	public void run()
@@ -403,7 +410,7 @@ class Core extends Thread
 			try {
 				//принимаем команду
 
-				HashMap<String, Object> receivedMessage;
+				HashMap<String, Object> receivedMessage=null;
 				String command="";
 				String filePath="";
 				String fileName="";
@@ -451,6 +458,11 @@ class Core extends Thread
 					CommandDELE(fileName);
 					continue;
 				}
+				else if(command.contains("TEST"))
+				{
+					CommandTEST(fileName);
+					continue;
+				}
 //				else if(command.compareTo("CLOSE")==0){
 //					CommandCLOSE(command);
 //				}
@@ -480,11 +492,16 @@ class Core extends Thread
 					CommandEPSV(command);
 					continue;
 				}*/
-				/*else if(command.contains("USER"))
+				else if(command.contains("AUTH"))
 				{
-					CommandUSER(command);
+
+					String login=receivedMessage.get("login").toString();
+					String password=receivedMessage.get("password").toString();
+
+
+					CommandAUTH(login,password);
 					continue;
-				}*/
+				}
 
 				/*else if(command.contains("SYST"))
 				{
@@ -524,22 +541,24 @@ class Core extends Thread
 	}
 
 
+
+
 	//модуль не работает,необходимо доделать
 	@SuppressWarnings("deprecation")
-	void InitLogin(String command) throws IOException{
+	void InitLogin(String login, String password) throws IOException{
 		LoadUserList();
-		boolean auth = false;
+		//boolean auth = false;
+
 		try{
-			String username = fastSplit(command);
+
 			this.reply(Constants.USERNAME_CORRECT, "Username correct");
 
-			command=din.readLine();
-			String password = fastSplit(command);
+
 
 			for (int i=0;i<this.Users.size(); i++){
-				if(this.Users.get(i).compareToIgnoreCase(username + " " + password) == 0){
+				if(this.Users.get(i).compareToIgnoreCase(login + " " + password) == 0){
 					this.reply(Constants.LOGIN_CORRECT, "Login correct");
-					Debug.log("Пользователь "  + username + " авторизован.");
+					Debug.log("Пользователь "  + login + " авторизован.");
 					auth = true;
 					break;
 				}
@@ -547,9 +566,23 @@ class Core extends Thread
 			if (!auth) this.reply(Constants.LOGIN_INCORRECT, "Login incorrect");
 		}
 		catch(Exception ex){};
+
+
+
+		if (usersMap.containsKey(login)&&usersMap.get(login).equals(password)){
+			auth=true;
+
+			//заглушка если нужно будет разграничение ролей
+			role=1;
+		}else {
+
+
+
+
+
 	}
 	//модуль не работает,необходимо доделать
-	private void CommandTYPE(String command) throws IOException {
+//	private void CommandTYPE(String command) throws IOException {
 //		String arg = fastSplit(command);
 //		System.out.println("\tTYPE "+ arg + " Command Received ...");
 

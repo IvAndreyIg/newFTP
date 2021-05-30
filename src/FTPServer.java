@@ -91,14 +91,23 @@ public class FTPServer
 
 			} else if(lineArgs[0].equals("cluster")){
 
+
+				String fileEnd="";
+
         		port = Integer.parseInt(lineArgs[1]);
+
+        		if (lineArgs.length>2){
+
+					fileEnd=lineArgs[2];
+				}
+
     	        ServerSocket soc=new ServerSocket(port);
     	        Debug.log("Кластер активиирован на порту: " + port);
     	        while(true)
     	        {
     	        	Debug.log("Ожидание подключение контролирующего сервера ...");
-    	            ClusterCore t=new ClusterCore(soc.accept());
-    	        }   			
+    	            ClusterCore t=new ClusterCore(soc.accept(),fileEnd);
+    	        }
 
     	}
     }

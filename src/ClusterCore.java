@@ -8,10 +8,17 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class ClusterCore extends Thread {
 	
     DataInputStream din;
-    DataOutputStream dout;	
-    
-	ClusterCore(Socket soc){
-        try {
+    DataOutputStream dout;
+	private String fileEnd;
+
+	private String fileDir="files/";
+
+	ClusterCore(Socket soc, String fileEnd){
+		this.fileEnd = fileEnd;
+
+		fileDir="files"+fileEnd+"/";
+		System.out.println("files:"+fileDir );
+		try {
               Socket ClientSoc = soc;                        
               din=new DataInputStream(ClientSoc.getInputStream());
               dout=new DataOutputStream(ClientSoc.getOutputStream());
@@ -28,7 +35,7 @@ public class ClusterCore extends Thread {
 
     void SendFile(String command) throws Exception {      
     	String filename = fastSplit(command);
-    	File file = new File("files/" + filename);
+    	File file = new File(fileDir + filename);
     	
     	if (!file.exists()){
     		System.out.println("File no found!");
@@ -100,7 +107,7 @@ public class ClusterCore extends Thread {
     }
 	private void CommandDELE(String command) throws IOException {
 		String filename = fastSplit(command);
-		File f = new File("files/" + filename);
+		File f = new File(fileDir + filename);
 		if(!f.delete()) Debug.log(" Error: Delete failed");
 	} 
     private void CommandSYNX(String command) {
@@ -128,7 +135,7 @@ public class ClusterCore extends Thread {
 
     	String filename = fastSplit(command);
 		
-    	File f = new File("files/" + filename);
+    	File f = new File(fileDir+ filename);
 		FileOutputStream fout=new FileOutputStream(f);
 
         byte[] buffer = new byte[1024];
@@ -149,7 +156,7 @@ public class ClusterCore extends Thread {
 	private void CommandLIST(String command) throws IOException {
 		Debug.method("\tLIST Command Received ...");
 
-		String list[] = new File("files/").list();
+		String list[] = new File(fileDir).list();
 		for (int i = 0; i < list.length; i++){
 			String file = FileInfo(list[i]);
 			System.out.print("[FILE] " + file);
@@ -162,7 +169,7 @@ public class ClusterCore extends Thread {
 	private String FileInfo(String filename){
 		String date,time;
 		try{
-			File file = new File("files/" + filename);
+			File file = new File(fileDir + filename);
 			Path path = file.toPath();
 			BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 
@@ -180,7 +187,7 @@ public class ClusterCore extends Thread {
 		}  
 	}	
     private void CreateWorkDir() {
-    	File myPath = new File("files/");
+    	File myPath = new File(fileDir);
     	myPath.mkdirs();
 	}
     String fastSplit(String command){

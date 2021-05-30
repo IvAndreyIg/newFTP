@@ -15,7 +15,7 @@ public class VirtualClient {
     DataInputStream vc_in;
     DataOutputStream vc_out;	
 
-    public int allocated_memory = 0;
+    public int allocated_memory = 1;
     int memory = 0;
     int files = 0;
     

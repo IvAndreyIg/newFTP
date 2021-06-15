@@ -443,31 +443,101 @@ class Core extends Thread
 				 убрать if и заменить на switch,
 				 также добавить проверку авторизации из метода InitLogin(String command) */
 
-				if(command.contains("GET"))
-				{
-					CommandGET(filePath,fileName);
-					continue;
+
+
+				switch (command){
+
+					case "GET":{
+
+						if (auth)
+							CommandGET(filePath,fileName);
+
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+					};break;
+
+					case "LIST":{
+
+						if (auth)
+							CommandLIST(filePath,fileName,text);
+
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+					};break;
+
+					case "SEND":{
+
+						if (auth)
+							CommandSEND(filePath,fileName);
+
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+
+
+					};break;
+					case "DELETE":{
+
+
+						if (auth)
+							CommandDELE(fileName);
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+
+					};break;
+					case "TEST":{
+						if (auth)
+						CommandTEST(fileName);
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+
+					};break;
+
+					case "AUTH":{
+
+						String login=receivedMessage.get("login").toString();
+						String password=receivedMessage.get("password").toString();
+
+
+						CommandAUTH(login,password);
+
+					};break;
+
+
+					default:{
+
+						reply(Constants.COMMAND_NOT_SUPPORT,"command not support");
+					}break;
+
+
+
+
 				}
-				else if(command.contains("LIST"))
-				{
-					CommandLIST(filePath,fileName,text);
-					continue;
-				}
-				else if(command.contains("SEND"))
-				{
-					CommandSEND(filePath,fileName);
-					continue;
-				}
-				else if(command.contains("DELETE"))
-				{
-					CommandDELE(fileName);
-					continue;
-				}
-				else if(command.contains("TEST"))
-				{
-					CommandTEST(fileName);
-					continue;
-				}
+
+//				if(command.contains("GET")&&auth)
+//				{
+//					CommandGET(filePath,fileName);
+//					continue;
+//				}
+//				else if(command.contains("LIST")&&auth)
+//				{
+//					CommandLIST(filePath,fileName,text);
+//					continue;
+//				}
+//				else if(command.contains("SEND")&&auth)
+//				{
+//					CommandSEND(filePath,fileName);
+//					continue;
+//				}
+//				else if(command.contains("DELETE")&&auth)
+//				{
+//					CommandDELE(fileName);
+//					continue;
+//				}
+//				else if(command.contains("TEST")&&auth)
+//				{
+//					CommandTEST(fileName);
+//					continue;
+//				}
 //				else if(command.compareTo("CLOSE")==0){
 //					CommandCLOSE(command);
 //				}
@@ -497,17 +567,17 @@ class Core extends Thread
 					CommandEPSV(command);
 					continue;
 				}*/
-				else if(command.contains("AUTH"))
-				{
-
-					System.out.println("authTrying");
-					String login=receivedMessage.get("login").toString();
-					String password=receivedMessage.get("password").toString();
-
-
-					CommandAUTH(login,password);
-					continue;
-				}
+//				else if(command.contains("AUTH"))
+//				{
+//
+//					System.out.println("authTrying");
+//					String login=receivedMessage.get("login").toString();
+//					String password=receivedMessage.get("password").toString();
+//
+//
+//					CommandAUTH(login,password);
+//					continue;
+//				}
 
 				/*else if(command.contains("SYST"))
 				{
@@ -525,10 +595,9 @@ class Core extends Thread
 				/*else if(command.compareTo("QUIT")==0){
 					CommandQUIT(command);
 				}*/
-				 else {
-					reply(Constants.COMMAND_NOT_SUPPORT,"command not suppot");
-				}
-				sleep(50);
+//				 else {
+//					reply(Constants.COMMAND_NOT_SUPPORT,"command not suppot");
+//				}
 			}
 			catch(Exception ex){
 				ex.printStackTrace();

@@ -12,7 +12,7 @@ public class Main
 		Scanner in = new Scanner(System.in);
 
 			System.out.print("Input mode: ");
-			// 0       1    2    3     4                    5      6
+			// 0 режим 1порт  2порт передачи    3 тип БД     4 хост БД и именем бд 5 логин юзера 6 пароль
 			// cluster 1000
 			// cluster 1000
 			// server
@@ -52,7 +52,18 @@ public class Main
 							System.out.println("mysql connect");
 
 							connector=new mySQLConnector();
-							connector.connect(lineArgs[4],lineArgs[5],lineArgs[6]);
+
+							String host= lineArgs[4];
+
+							String login=lineArgs[5];
+
+							String password="";
+
+							if (lineArgs.length==7)
+								 password=lineArgs[6];
+
+
+							connector.connect(host,login,password);
 
 
 						}break;

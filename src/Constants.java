@@ -20,4 +20,5 @@ public class Constants  {
 	public final static int FILE_NOT_FOUND = 550;
 	public final static int LOGIN_INCORRECT = 530;
 	public final static int LOGIN_STATE = 211;
+	public final static int NOT_AUTHORISED=222;
 }

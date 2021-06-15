@@ -10,5 +10,6 @@ public interface DBConnector {
 
     public HashMap<String,String> getUsers();
 
+    public void connect(String host ,String login, String password);
 
 }

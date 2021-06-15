@@ -12,14 +12,27 @@ public class LocalDBConnector implements DBConnector{
 
     private String usersPath="";
 
+
+    public LocalDBConnector() {
+        System.out.println("local connect");
+    }
+
     @Override
-    public void connect() {
-
-
+    public void connect(String host, String login, String password) {
 
         clustersPath="clusters.txt";
 
         usersPath="users.txt";
+
+    }
+
+    @Override
+    public void connect() {
+
+        clustersPath="clusters.txt";
+
+        usersPath="users.txt";
+
     }
 
     @Override
@@ -81,7 +94,7 @@ public class LocalDBConnector implements DBConnector{
             while ((line = br.readLine()) != null) {
 
 
-                String login=Tools.fifthSplit(line);
+                String login=Tools.firstSplit(line);
 
                 String password=Tools.secondSplit(line);
 
@@ -89,7 +102,7 @@ public class LocalDBConnector implements DBConnector{
 
 
 
-                //Debug.log("Пользователь " + line);
+               // Debug.log("Пользователь " + line);
             }
             br.close();
         } catch(Exception ex){ ex.printStackTrace();}
@@ -100,4 +113,6 @@ public class LocalDBConnector implements DBConnector{
 
         return stringStringHashMap;
     }
+
+
 }

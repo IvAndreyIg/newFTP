@@ -34,4 +34,8 @@ public class Tools {
         else
             return "";
     }
+    static String fastSplit(String command){
+        String[] arg = command.split(" ");
+        return arg[1];
+    }
 }

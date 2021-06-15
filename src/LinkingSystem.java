@@ -237,6 +237,7 @@ public class LinkingSystem {
 		System.out.println("\n\n");
 		return 0;
 	}
+	///это для тестов
 	public int MathTest(){
 		System.out.println("\n\n");
 		System.out.println("=============== TABLE ===============");

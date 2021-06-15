@@ -66,7 +66,7 @@ class Core extends Thread
 			и их памяти как в методе  CommandLIST(String command)*/
 			InitFilesLists();
             start();
-        } catch(Exception ex){};        
+        } catch(Exception ex){};
     }
 
 	void SendFile(String filePath, String fileName) throws Exception {
@@ -196,6 +196,8 @@ class Core extends Thread
 	reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.",filePath);
 
 	TransferStream ts = new TransferStream(5218);
+
+
 
 	for (int i = 0; i < FileList.length(); i++){
 		String file = FileInfo(FileList.get(i)[0]);
@@ -343,7 +345,7 @@ class Core extends Thread
     	return arg[1];
     }
    synchronized void  LoadLocalFiles(){
-    	// эту строчку написала тварина
+    	// следующую строчку написало чудовище
     //	if (!loaded){
 	        File dir = new File(path);
 	        String fileNames[] = dir.list();
@@ -418,10 +420,13 @@ class Core extends Thread
 				try {
 					//считываем полученную команду
 					receivedMessage=(HashMap<String, Object>)din.readObject();
+					if(receivedMessage.get("command")!=null)
 					command=receivedMessage.get("command").toString();
+					if(receivedMessage.get("path")!=null)
 					filePath=receivedMessage.get("path").toString();
+					if(receivedMessage.get("name")!=null)
 					fileName=receivedMessage.get("name").toString();
-					fileName=receivedMessage.get("name").toString();
+					if(receivedMessage.get("text")!=null)
 					text=receivedMessage.get("text").toString();
 
 
@@ -495,6 +500,7 @@ class Core extends Thread
 				else if(command.contains("AUTH"))
 				{
 
+					System.out.println("authTrying");
 					String login=receivedMessage.get("login").toString();
 					String password=receivedMessage.get("password").toString();
 
@@ -525,7 +531,8 @@ class Core extends Thread
 				sleep(50);
 			}
 			catch(Exception ex){
-				System.out.println(ex);
+				ex.printStackTrace();
+				//System.out.println(ex);
 				try {
 					sleep(30);
 				} catch (InterruptedException e) {
@@ -549,38 +556,26 @@ class Core extends Thread
 		LoadUserList();
 		//boolean auth = false;
 
-		try{
-
-			this.reply(Constants.USERNAME_CORRECT, "Username correct");
 
 
 
-			for (int i=0;i<this.Users.size(); i++){
-				if(this.Users.get(i).compareToIgnoreCase(login + " " + password) == 0){
-					this.reply(Constants.LOGIN_CORRECT, "Login correct");
-					Debug.log("Пользователь "  + login + " авторизован.");
-					auth = true;
-					break;
-				}
-			}
-			if (!auth) this.reply(Constants.LOGIN_INCORRECT, "Login incorrect");
-		}
-		catch(Exception ex){};
+			//this.reply(Constants.USERNAME_CORRECT, "Username correct");
 
+		//System.out.println("login:"+login+" pass:"+password+"res:"+usersMap.containsKey(login));
 
+//		usersMap.forEach((k,v)->{
+//			System.out.println("key:"+k+" v: "+v);
+//		});
 
 		if (usersMap.containsKey(login)&&usersMap.get(login).equals(password)){
 			auth=true;
-
+			this.reply(Constants.LOGIN_STATE, "confirm");
 			//заглушка если нужно будет разграничение ролей
 			role=1;
 		}else {
-
-
-
-
-
-	}
+			this.reply(Constants.LOGIN_STATE, "incorrect");
+			auth=false;
+		}
 	//модуль не работает,необходимо доделать
 //	private void CommandTYPE(String command) throws IOException {
 //		String arg = fastSplit(command);

@@ -34,7 +34,7 @@ public class ClusterCore extends Thread {
 	}
 
     void SendFile(String command) throws Exception {      
-    	String filename = fastSplit(command);
+    	String filename = Tools.fastSplit(command);
     	File file = new File(fileDir + filename);
     	
     	if (!file.exists()){
@@ -106,7 +106,7 @@ public class ClusterCore extends Thread {
         }
     }
 	private void CommandDELE(String command) throws IOException {
-		String filename = fastSplit(command);
+		String filename = Tools.fastSplit(command);
 		File f = new File(fileDir + filename);
 		if(!f.delete()) Debug.log(" Error: Delete failed");
 	} 
@@ -133,7 +133,7 @@ public class ClusterCore extends Thread {
 	private void CommandSTOR(String command) throws IOException {
 		// TODO Auto-generated method stub
 
-    	String filename = fastSplit(command);
+    	String filename = Tools.fastSplit(command);
 		
     	File f = new File(fileDir+ filename);
 		FileOutputStream fout=new FileOutputStream(f);
@@ -190,8 +190,5 @@ public class ClusterCore extends Thread {
     	File myPath = new File(fileDir);
     	myPath.mkdirs();
 	}
-    String fastSplit(String command){
-    	String[] arg = command.split(" ");
-    	return arg[1];
-    }
+
 }

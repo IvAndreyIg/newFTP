@@ -8,8 +8,8 @@ class TransferStream{
 	ServerSocket ServerSoc;
 	Socket DataSoc;
 	
-    public static DataInputStream in;
-    public static DataOutputStream out;	
+    public  DataInputStream in;
+    public  DataOutputStream out;
     
 	TransferStream (int port){
 		try {
@@ -18,9 +18,20 @@ class TransferStream{
 			
 			in =new DataInputStream(DataSoc.getInputStream());
 			out=new DataOutputStream(DataSoc.getOutputStream());
+
+			System.out.println("DataSoc:"+(DataSoc!=null));
+
+			System.out.println("in:"+(in!=null));
+
+			System.out.println("out:"+(out!=null));
 			
 		} 
-		catch(Exception ex){};
+		catch(IOException ex){
+
+			ex.printStackTrace();
+
+			System.out.println(ex);
+		};
 			
 	}
 	public void close() throws IOException{

@@ -64,7 +64,9 @@ class Core extends Thread
             reply(Constants.WELCOME_CODE, "Welcome to Avalon");
             /*необходимо добавить инициализацию кластеров
 			и их памяти как в методе  CommandLIST(String command)*/
+			System.out.println("Files!");
 			InitFilesLists();
+			System.out.println("Thread!");
             start();
         } catch(Exception ex){};
     }
@@ -408,7 +410,7 @@ class Core extends Thread
 		int errors =0;
 
 		while(true){
-
+			System.out.println("ready to catche!");
 			try {
 				//принимаем команду
 
@@ -420,6 +422,7 @@ class Core extends Thread
 				try {
 					//считываем полученную команду
 					receivedMessage=(HashMap<String, Object>)din.readObject();
+					System.out.println("new Message catched!");
 					if(receivedMessage.get("command")!=null)
 					command=receivedMessage.get("command").toString();
 					if(receivedMessage.get("path")!=null)

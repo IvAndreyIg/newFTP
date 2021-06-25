@@ -353,11 +353,14 @@ class Core extends Thread
     	// следующую строчку написало чудовище
     //	if (!loaded){
 	        File dir = new File(path);
+	   System.out.println("356");
 	        String fileNames[] = dir.list();
-
+	   System.out.println("358");
 	   		FileList = new ExtendedFileList();
-
+	   System.out.println("360");
+	   System.out.println("fileNames.length:"+fileNames.length);
 	        for (int i = 0; i<fileNames.length;i++){
+				System.out.println("i:"+i);
 	        	FileList.add(fileNames[i], "localhost");
 	        }
 	        loaded = true;

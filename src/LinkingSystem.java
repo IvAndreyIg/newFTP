@@ -63,9 +63,12 @@ public class LinkingSystem {
 		Debug.method("\tGetRemoteListFromClusters");
 		int port;
 		String address;
+
+		//System.out.println("size:"+VirtualClientList.size());
 		if (!VirtualClientList.isEmpty()){
 			try {
 				for (int i=0;i<VirtualClientList.size();i++){
+					//System.out.println("i:"+i);
 					ArrayList<String> vc_file_list = new ArrayList<String>();
 					address = VirtualClientList.get(i).vc_address;
 					port = VirtualClientList.get(i).vc_port;

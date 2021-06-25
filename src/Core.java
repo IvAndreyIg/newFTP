@@ -179,10 +179,13 @@ class Core extends Thread
 	private void InitFilesLists(){
 
 		//очищаем список файлов с кластоеров
+		System.out.println("step 1 182");
 		ReloadableFileList.clear();
 		//подгружаем список локальных файлов на главном сервере
+		System.out.println("step 2 185");
 		LoadLocalFiles();
 		//подгружаем список файлов с кластеров
+		System.out.println("step 3 188");
 		ReloadableFileList = ls.GetRemoteListFromClusters();
 	}
 

@@ -64,9 +64,11 @@ class Core extends Thread
             reply(Constants.WELCOME_CODE, "Welcome to Avalon");
             /*необходимо добавить инициализацию кластеров
 			и их памяти как в методе  CommandLIST(String command)*/
+			System.out.println("Files!");
 			InitFilesLists();
+			System.out.println("Thread!");
             start();
-        } catch(Exception ex){};        
+        } catch(Exception ex){};
     }
 
 	void SendFile(String filePath, String fileName) throws Exception {
@@ -177,10 +179,13 @@ class Core extends Thread
 	private void InitFilesLists(){
 
 		//очищаем список файлов с кластоеров
+		System.out.println("step 1 182");
 		ReloadableFileList.clear();
 		//подгружаем список локальных файлов на главном сервере
+		System.out.println("step 2 185");
 		LoadLocalFiles();
 		//подгружаем список файлов с кластеров
+		System.out.println("step 3 188");
 		ReloadableFileList = ls.GetRemoteListFromClusters();
 	}
 
@@ -196,6 +201,8 @@ class Core extends Thread
 	reply(Constants.FILE_STATUS_OK_OPEN_TRANSFER_SEND,"Open ASCII mode data connection.",filePath);
 
 	TransferStream ts = new TransferStream(5218);
+
+
 
 	for (int i = 0; i < FileList.length(); i++){
 		String file = FileInfo(FileList.get(i)[0]);
@@ -343,14 +350,17 @@ class Core extends Thread
     	return arg[1];
     }
    synchronized void  LoadLocalFiles(){
-    	// эту строчку написала тварина
+    	// следующую строчку написало чудовище
     //	if (!loaded){
 	        File dir = new File(path);
+	   System.out.println("356");
 	        String fileNames[] = dir.list();
-
+	   System.out.println("358");
 	   		FileList = new ExtendedFileList();
-
+	   System.out.println("360");
+	   System.out.println("fileNames.length:"+fileNames.length);
 	        for (int i = 0; i<fileNames.length;i++){
+				System.out.println("i:"+i);
 	        	FileList.add(fileNames[i], "localhost");
 	        }
 	        loaded = true;
@@ -406,7 +416,7 @@ class Core extends Thread
 		int errors =0;
 
 		while(true){
-
+			System.out.println("ready to catche!");
 			try {
 				//принимаем команду
 
@@ -418,10 +428,14 @@ class Core extends Thread
 				try {
 					//считываем полученную команду
 					receivedMessage=(HashMap<String, Object>)din.readObject();
+					System.out.println("new Message catched!");
+					if(receivedMessage.get("command")!=null)
 					command=receivedMessage.get("command").toString();
+					if(receivedMessage.get("path")!=null)
 					filePath=receivedMessage.get("path").toString();
+					if(receivedMessage.get("name")!=null)
 					fileName=receivedMessage.get("name").toString();
-					fileName=receivedMessage.get("name").toString();
+					if(receivedMessage.get("text")!=null)
 					text=receivedMessage.get("text").toString();
 
 
@@ -438,31 +452,101 @@ class Core extends Thread
 				 убрать if и заменить на switch,
 				 также добавить проверку авторизации из метода InitLogin(String command) */
 
-				if(command.contains("GET"))
-				{
-					CommandGET(filePath,fileName);
-					continue;
+
+
+				switch (command){
+
+					case "GET":{
+
+						if (auth)
+							CommandGET(filePath,fileName);
+
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+					};break;
+
+					case "LIST":{
+
+						if (auth)
+							CommandLIST(filePath,fileName,text);
+
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+					};break;
+
+					case "SEND":{
+
+						if (auth)
+							CommandSEND(filePath,fileName);
+
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+
+
+					};break;
+					case "DELETE":{
+
+
+						if (auth)
+							CommandDELE(fileName);
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+
+					};break;
+					case "TEST":{
+						if (auth)
+						CommandTEST(fileName);
+						else
+							reply(Constants.NOT_AUTHORISED,"not authoried");
+
+					};break;
+
+					case "AUTH":{
+
+						String login=receivedMessage.get("login").toString();
+						String password=receivedMessage.get("password").toString();
+
+
+						CommandAUTH(login,password);
+
+					};break;
+
+
+					default:{
+
+						reply(Constants.COMMAND_NOT_SUPPORT,"command not support");
+					}break;
+
+
+
+
 				}
-				else if(command.contains("LIST"))
-				{
-					CommandLIST(filePath,fileName,text);
-					continue;
-				}
-				else if(command.contains("SEND"))
-				{
-					CommandSEND(filePath,fileName);
-					continue;
-				}
-				else if(command.contains("DELETE"))
-				{
-					CommandDELE(fileName);
-					continue;
-				}
-				else if(command.contains("TEST"))
-				{
-					CommandTEST(fileName);
-					continue;
-				}
+
+//				if(command.contains("GET")&&auth)
+//				{
+//					CommandGET(filePath,fileName);
+//					continue;
+//				}
+//				else if(command.contains("LIST")&&auth)
+//				{
+//					CommandLIST(filePath,fileName,text);
+//					continue;
+//				}
+//				else if(command.contains("SEND")&&auth)
+//				{
+//					CommandSEND(filePath,fileName);
+//					continue;
+//				}
+//				else if(command.contains("DELETE")&&auth)
+//				{
+//					CommandDELE(fileName);
+//					continue;
+//				}
+//				else if(command.contains("TEST")&&auth)
+//				{
+//					CommandTEST(fileName);
+//					continue;
+//				}
 //				else if(command.compareTo("CLOSE")==0){
 //					CommandCLOSE(command);
 //				}
@@ -492,16 +576,17 @@ class Core extends Thread
 					CommandEPSV(command);
 					continue;
 				}*/
-				else if(command.contains("AUTH"))
-				{
-
-					String login=receivedMessage.get("login").toString();
-					String password=receivedMessage.get("password").toString();
-
-
-					CommandAUTH(login,password);
-					continue;
-				}
+//				else if(command.contains("AUTH"))
+//				{
+//
+//					System.out.println("authTrying");
+//					String login=receivedMessage.get("login").toString();
+//					String password=receivedMessage.get("password").toString();
+//
+//
+//					CommandAUTH(login,password);
+//					continue;
+//				}
 
 				/*else if(command.contains("SYST"))
 				{
@@ -519,13 +604,13 @@ class Core extends Thread
 				/*else if(command.compareTo("QUIT")==0){
 					CommandQUIT(command);
 				}*/
-				 else {
-					reply(Constants.COMMAND_NOT_SUPPORT,"command not suppot");
-				}
-				sleep(50);
+//				 else {
+//					reply(Constants.COMMAND_NOT_SUPPORT,"command not suppot");
+//				}
 			}
 			catch(Exception ex){
-				System.out.println(ex);
+				ex.printStackTrace();
+				//System.out.println(ex);
 				try {
 					sleep(30);
 				} catch (InterruptedException e) {
@@ -549,38 +634,26 @@ class Core extends Thread
 		LoadUserList();
 		//boolean auth = false;
 
-		try{
-
-			this.reply(Constants.USERNAME_CORRECT, "Username correct");
 
 
 
-			for (int i=0;i<this.Users.size(); i++){
-				if(this.Users.get(i).compareToIgnoreCase(login + " " + password) == 0){
-					this.reply(Constants.LOGIN_CORRECT, "Login correct");
-					Debug.log("Пользователь "  + login + " авторизован.");
-					auth = true;
-					break;
-				}
-			}
-			if (!auth) this.reply(Constants.LOGIN_INCORRECT, "Login incorrect");
-		}
-		catch(Exception ex){};
+			//this.reply(Constants.USERNAME_CORRECT, "Username correct");
 
+		//System.out.println("login:"+login+" pass:"+password+"res:"+usersMap.containsKey(login));
 
+//		usersMap.forEach((k,v)->{
+//			System.out.println("key:"+k+" v: "+v);
+//		});
 
 		if (usersMap.containsKey(login)&&usersMap.get(login).equals(password)){
 			auth=true;
-
+			this.reply(Constants.LOGIN_STATE, "confirm");
 			//заглушка если нужно будет разграничение ролей
 			role=1;
 		}else {
-
-
-
-
-
-	}
+			this.reply(Constants.LOGIN_STATE, "incorrect");
+			auth=false;
+		}
 	//модуль не работает,необходимо доделать
 //	private void CommandTYPE(String command) throws IOException {
 //		String arg = fastSplit(command);

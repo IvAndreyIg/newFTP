@@ -1,20 +1,24 @@
 import java.net.ServerSocket;
 import java.util.Scanner;
 
-public class FTPServer
+public class Main
 {
-	static int port;
+
 	
     public static void main(String args[]) throws Exception
     {
+		 int port=0;
 
 		Scanner in = new Scanner(System.in);
 
 			System.out.print("Input mode: ");
+			// 0 режим 1порт  2порт передачи    3 тип БД     4 хост БД и именем бд 5 логин юзера 6 пароль
+			// cluster 1000
 			// cluster 1000
 			// server
 			// server 5217
-			// server 5218 mysql localhost:3306/Goose login1 password1
+			// server 5217 5218
+			// server 5217 5218 mysql localhost:3306/localdb Andrey myPassword
 			String mode = in.nextLine();
 
 
@@ -39,26 +43,34 @@ public class FTPServer
 				//настройки получения данных о кластерах и клиентах
 				if (lineArgs.length>5){
 
-					String dbType=lineArgs[2];
+					String dbType=lineArgs[3];
 
 
 					switch (dbType){
 
 						case "mysql":{
+							System.out.println("mysql connect");
 
-							//connector=new mysqlDBConnector(lineArgs[3],lineArgs[4],lineArgs[5]);
-							//connector.connect();
+							connector=new mySQLConnector();
+
+							String host= lineArgs[4];
+
+							String login=lineArgs[5];
+
+							String password="";
+
+							if (lineArgs.length==7)
+								 password=lineArgs[6];
+
+
+							connector.connect(host,login,password);
 
 
 						}break;
 						case "mongodb":{
 
-							//connector=new mongodbDBConnector(lineArgs[3],lineArgs[4],lineArgs[5]);
-							//connector.connect();
-
-
-						}break;
-						default:{
+							//connector=new mongodbDBConnector();
+							//connector.connect(lineArgs[3],lineArgs[4],lineSystem.out.println("local connect");
 
 							connector=new LocalDBConnector();
 							connector.connect();
@@ -68,6 +80,9 @@ public class FTPServer
 
 
 				}else{
+
+
+
 
 					connector=new LocalDBConnector();
 					connector.connect();
